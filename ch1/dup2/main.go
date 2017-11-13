@@ -14,11 +14,14 @@ import (
 	"os"
 )
 
+
 func main() {
-	counts := make(map[string]int)
+	//unique word maps to map that maps filenames to counts 
+	counts := make(map[string]map[string]int)
+
 	files := os.Args[1:]
 	if len(files) == 0 {
-		countLines(os.Stdin, counts)
+		countLines(os.Stdin, counts, "stdin")
 	} else {
 		for _, arg := range files {
 			f, err := os.Open(arg)
@@ -26,21 +29,36 @@ func main() {
 				fmt.Fprintf(os.Stderr, "dup2: %v\n", err)
 				continue
 			}
-			countLines(f, counts)
+			countLines(f, counts, arg)
 			f.Close()
 		}
 	}
 	for line, n := range counts {
-		if n > 1 {
-			fmt.Printf("%d\t%s\n", n, line)
+		total := 0
+		for _, i := range n {
+			total += i
+		}
+
+		if total > 1 {
+			fmt.Printf("%s :\t\t%d\t",line,total)
+			for fn,_ := range n{
+				fmt.Printf("%s ",fn)
+			}
+			fmt.Printf("\n")
 		}
 	}
 }
 
-func countLines(f *os.File, counts map[string]int) {
+func countLines(f *os.File, counts map[string]map[string]int, fn string) {
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		counts[input.Text()]++
+		q := counts[input.Text()]
+
+		if q == nil{
+			q = make(map[string]int)
+			counts[input.Text()] = q
+		}
+		q[fn]++
 	}
 	// NOTE: ignoring potential errors from input.Err()
 }
