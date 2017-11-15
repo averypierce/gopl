@@ -26,7 +26,6 @@ func main() {
 		f := tempconv.Fahrenheit(t)
 		c := tempconv.Celsius(t)
 
-		fmt.Println("tacobell")
 		fmt.Printf("%s = %s, %s = %s\n",
 			f, tempconv.FToC(f), c, tempconv.CToF(c))
 	}
